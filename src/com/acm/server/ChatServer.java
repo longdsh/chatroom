@@ -2,6 +2,7 @@ package com.acm.server;
 
 import com.acm.bean.Client;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,8 +26,16 @@ public class ChatServer implements Runnable {
     }
 
 
-    public void sendToAll() {
-
+    public void sendToAll(String message) {
+        for(Client client:clients){
+            Socket socket = client.getSocket();
+            try {
+                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                dataOutputStream.writeUTF(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -34,22 +43,22 @@ public class ChatServer implements Runnable {
     public void run() {
         boolean flag = true;
         while (flag) {
+            try {
+                ois = new ObjectInputStream(clientSocket.getInputStream());
+                Client client = (Client) ois.readObject();
+                client.setSocket(clientSocket);
+                clients.add(client);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
         }
     }
 
     public ChatServer(Socket clientSocket) {
-        try {
-            ois = new ObjectInputStream(clientSocket.getInputStream());
-            oos = new ObjectOutputStream(clientSocket.getOutputStream());
-            Client client = (Client) ois.readObject();
-            client.setSocket(clientSocket);
-            clients.add(client);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+
         this.clientSocket = clientSocket;
 
     }

@@ -7,6 +7,7 @@ import java.net.Socket;
  */
 public class Client {
     private String name;
+    private Integer code;
     private Socket socket ;
 
     public Client() {
@@ -15,6 +16,15 @@ public class Client {
     public Client(String name, Socket socket) {
         this.name = name;
         this.socket = socket;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public Client setCode(Integer code) {
+        this.code = code;
+        return this;
     }
 
     public String getName() {
