@@ -9,58 +9,52 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by lusufei1996 on 2017/10/15.
  */
 public class ChatServer implements Runnable {
 
-    private static List<Client> clients = null;
-    private Socket clientSocket = null;
-    private ObjectInputStream ois = null;
-    private ObjectOutputStream oos = null;
+    private final static int INTO = 1;//加入群聊
+    private final static int EXIT = -1;//退出群聊
+    private final static int SAY_TO_ALL = 2;//对所有人说
+    private final static int SAY_TO_ONE = 3;//私聊
+
+    private static Map<String,Client> clients = null;
+    private Client client = null;
 
     static {
-        clients = new ArrayList<Client>();
+         clients = new HashMap<String,Client>();
     }
 
 
-    public void sendToAll(String message) {
-        for(Client client:clients){
-            Socket socket = client.getSocket();
-            try {
-                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                dataOutputStream.writeUTF(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    public void sendToAll(Client client) {
+
     }
 
+    public void sendToOne(Client client){
 
+    }
     @Override
     public void run() {
-        boolean flag = true;
-        while (flag) {
-            try {
-                ois = new ObjectInputStream(clientSocket.getInputStream());
-                Client client = (Client) ois.readObject();
-                client.setSocket(clientSocket);
-                clients.add(client);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
 
-        }
+
+
     }
 
-    public ChatServer(Socket clientSocket) {
-
-        this.clientSocket = clientSocket;
-
+    public ChatServer(Socket clientSocket){
+        try {
+            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
+            this.client = (Client) ois.readObject();
+            this.clients.put(this.client.getName(),this.client);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public ChatServer() {

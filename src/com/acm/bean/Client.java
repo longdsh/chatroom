@@ -1,14 +1,16 @@
 package com.acm.bean;
 
+import java.io.Serializable;
 import java.net.Socket;
 
 /**
  * Created by lusufei1996 on 2017/10/15.
  */
-public class Client {
+public class Client implements Serializable{
     private String name;
-    private Integer code;
+    private Integer info;
     private Socket socket ;
+    private String message;
 
     public Client() {
     }
@@ -18,12 +20,28 @@ public class Client {
         this.socket = socket;
     }
 
-    public Integer getCode() {
-        return code;
+    public Client(String name, Integer info, Socket socket, String message) {
+        this.name = name;
+        this.info = info;
+        this.socket = socket;
+        this.message = message;
     }
 
-    public Client setCode(Integer code) {
-        this.code = code;
+    public Integer getInfo() {
+        return info;
+    }
+
+    public Client setInfo(Integer info) {
+        this.info = info;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Client setMessage(String message) {
+        this.message = message;
         return this;
     }
 
