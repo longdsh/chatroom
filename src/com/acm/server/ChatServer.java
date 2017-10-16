@@ -40,7 +40,7 @@ public class ChatServer implements Runnable {
     }
 
     public void sendInto(Client client) {
-
+        System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
     }
 
     public void sendExit(Client client) {
@@ -49,19 +49,12 @@ public class ChatServer implements Runnable {
 
     public ObjectInputStream getObjectInputStream() {
         Socket clientSocket = this.client.getSocket();
+        System.out.println(this.client);
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(clientSocket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return ois;
     }
@@ -73,14 +66,6 @@ public class ChatServer implements Runnable {
             oos = new ObjectOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return oos;
     }
@@ -122,6 +107,8 @@ public class ChatServer implements Runnable {
         try {
             ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
             this.client = (Client) ois.readObject();
+            this.client.setSocket(clientSocket);
+            System.out.println(this.client);
             this.clients.put(this.client.getName(), this.client);
         } catch (IOException e) {
             e.printStackTrace();

@@ -9,8 +9,9 @@ import java.net.Socket;
  */
 public class ServerMain {
     public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(12345);
         while (true){
-            Socket socket = new Socket("localhost",8555);
+            Socket socket = serverSocket.accept();
             //接收到请求开启线程
             new Thread(new ChatServer(socket)).start();
         }

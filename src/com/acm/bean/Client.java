@@ -62,4 +62,14 @@ public class Client implements Serializable{
         this.socket = socket;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "name='" + name + '\'' +
+                ", info=" + info +
+                ", socket=" + socket +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }
