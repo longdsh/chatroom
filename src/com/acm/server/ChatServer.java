@@ -104,12 +104,12 @@ public class ChatServer implements Runnable {
     }
 
     public ChatServer(Socket clientSocket) {
+        //执行登录
         try {
             ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
             this.client = (Client) ois.readObject();
             this.client.setSocket(clientSocket);
-            System.out.println(this.client);
-            this.clients.put(this.client.getName(), this.client);
+            sendInto(this.client);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
