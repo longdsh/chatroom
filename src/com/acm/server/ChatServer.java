@@ -23,11 +23,11 @@ public class ChatServer implements Runnable {
     private final static int SAY_TO_ALL = 2;//对所有人说
     private final static int SAY_TO_ONE = 3;//私聊
 
-    private static Map<String,Client> clients = null;
+    private static Map<String, Client> clients = null;
     private Client client = null;
 
     static {
-         clients = new HashMap<String,Client>();
+        clients = new HashMap<String, Client>();
     }
 
 
@@ -35,21 +35,94 @@ public class ChatServer implements Runnable {
 
     }
 
-    public void sendToOne(Client client){
+    public void sendToOne(Client client) {
 
     }
+
+    public void sendInto(Client client) {
+
+    }
+
+    public void sendExit(Client client) {
+
+    }
+
+    public ObjectInputStream getObjectInputStream() {
+        Socket clientSocket = this.client.getSocket();
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(clientSocket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return ois;
+    }
+
+    public ObjectOutputStream getObjectOutputStream() {
+        Socket clientSocket = this.client.getSocket();
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(clientSocket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return oos;
+    }
+
+    public Client getMessage() {
+        Client message = null;
+        try {
+            message = (Client) getObjectInputStream().readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return message;
+    }
+
     @Override
     public void run() {
+        boolean flag = true;
+        while (flag) {
+            Client message = getMessage();
+            int info = client.getInfo();
+            if (info == INTO) {
+                sendInto(message);
+            } else if (info == SAY_TO_ALL) {
+                sendToAll(message);
+            } else if (info == SAY_TO_ONE) {
+                sendToOne(message);
+            } else if (info == EXIT) {
+                sendExit(message);
+            }
 
+        }
 
 
     }
 
-    public ChatServer(Socket clientSocket){
+    public ChatServer(Socket clientSocket) {
         try {
             ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
             this.client = (Client) ois.readObject();
-            this.clients.put(this.client.getName(),this.client);
+            this.clients.put(this.client.getName(), this.client);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
