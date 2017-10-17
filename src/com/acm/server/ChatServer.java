@@ -23,6 +23,8 @@ public class ChatServer implements Runnable {
     private final static int SAY_TO_ALL = 2;//对所有人说
     private final static int SAY_TO_ONE = 3;//私聊
 
+
+    private Socket clientSocket = null;
     private static Map<String, Client> clients = null;
     private Client client = null;
 
@@ -39,8 +41,10 @@ public class ChatServer implements Runnable {
 
     }
 
-    public void sendInto(Client client) {
-        System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
+    public void sendInto(Client client){
+       // System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
+
+
     }
 
     public void sendExit(Client client) {
@@ -48,8 +52,8 @@ public class ChatServer implements Runnable {
     }
 
     public ObjectInputStream getObjectInputStream() {
-        Socket clientSocket = this.client.getSocket();
-        System.out.println(this.client);
+        Socket clientSocket = this.clientSocket;
+       // System.out.println(this.client);
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(clientSocket.getInputStream());
@@ -60,7 +64,7 @@ public class ChatServer implements Runnable {
     }
 
     public ObjectOutputStream getObjectOutputStream() {
-        Socket clientSocket = this.client.getSocket();
+        Socket clientSocket = this.clientSocket;
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -88,9 +92,7 @@ public class ChatServer implements Runnable {
         while (flag) {
             Client message = getMessage();
             int info = client.getInfo();
-            if (info == INTO) {
-                sendInto(message);
-            } else if (info == SAY_TO_ALL) {
+            if (info == SAY_TO_ALL) {
                 sendToAll(message);
             } else if (info == SAY_TO_ONE) {
                 sendToOne(message);
@@ -104,17 +106,7 @@ public class ChatServer implements Runnable {
     }
 
     public ChatServer(Socket clientSocket) {
-        //执行登录
-        try {
-            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
-            this.client = (Client) ois.readObject();
-            this.client.setSocket(clientSocket);
-            sendInto(this.client);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+       this.clientSocket = clientSocket;
     }
 
     public ChatServer() {

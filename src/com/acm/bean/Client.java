@@ -2,6 +2,7 @@ package com.acm.bean;
 
 import java.io.Serializable;
 import java.net.Socket;
+import java.util.Map;
 
 /**
  * Created by lusufei1996 on 2017/10/15.
@@ -9,40 +10,9 @@ import java.net.Socket;
 public class Client implements Serializable{
     private String name;
     private Integer info;
-    private Socket socket ;
-    private String message;
+    private Map<String,Object> msg;
 
     public Client() {
-    }
-
-    public Client(String name, Socket socket) {
-        this.name = name;
-        this.socket = socket;
-    }
-
-    public Client(String name, Integer info, Socket socket, String message) {
-        this.name = name;
-        this.info = info;
-        this.socket = socket;
-        this.message = message;
-    }
-
-    public Integer getInfo() {
-        return info;
-    }
-
-    public Client setInfo(Integer info) {
-        this.info = info;
-        return this;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Client setMessage(String message) {
-        this.message = message;
-        return this;
     }
 
     public String getName() {
@@ -54,13 +24,28 @@ public class Client implements Serializable{
         return this;
     }
 
-    public Socket getSocket() {
-        return socket;
+    public Integer getInfo() {
+        return info;
     }
 
-    public Client setSocket(Socket socket) {
-        this.socket = socket;
+    public Client setInfo(Integer info) {
+        this.info = info;
         return this;
+    }
+
+    public Map<String, Object> getMsg() {
+        return msg;
+    }
+
+    public Client setMsg(Map<String, Object> msg) {
+        this.msg = msg;
+        return this;
+    }
+
+    public Client(String name, Integer info, Map<String, Object> msg) {
+        this.name = name;
+        this.info = info;
+        this.msg = msg;
     }
 
     @Override
@@ -68,8 +53,7 @@ public class Client implements Serializable{
         return "Client{" +
                 "name='" + name + '\'' +
                 ", info=" + info +
-                ", socket=" + socket +
-                ", message='" + message + '\'' +
+                ", msg=" + msg +
                 '}';
     }
 }
