@@ -21,7 +21,8 @@ public class ChatServer implements Runnable {
      *  之后再 ois  = getObjectInputStream(this.clientSocket);会抛异常
      *
      */
-    private final static int INTO = 1;//加入群聊
+    private final static int INTO_FAIL = 0;//加入群聊失败
+    private final static int INTO_SUCCESS = 1;//加入群聊
     private final static int EXIT = -1;//退出群聊
     private final static int SAY_TO_ALL = 2;//对所有人说
     private final static int SAY_TO_ONE = 3;//私聊
@@ -92,7 +93,7 @@ public class ChatServer implements Runnable {
         // System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
         String name = client.getName();
         if (clients.containsKey(name)) {
-            client.setInfo(0);
+            client.setInfo(INTO_FAIL);
             client.addMsg("message", "用户已存在");
             try {
                 oosToSelf.writeObject(client);
@@ -101,7 +102,7 @@ public class ChatServer implements Runnable {
             }
         } else {
             clients.put(client.getName(), this.clientSocket);//将客户socket放入map
-            client.setInfo(1);
+            client.setInfo(INTO_SUCCESS);
             client = client
                     .addMsg("message", "登录成功")
                     .addMsg("online", clients.size());//在线人数
@@ -137,7 +138,7 @@ public class ChatServer implements Runnable {
             ois  = getObjectInputStream(this.clientSocket);
             Client client = getClient();
             int info = client.getInfo();//判断为哪种消息
-            if (info == INTO) {
+            if (info == INTO_SUCCESS) {
                 sendInto(client);
             } else if (info == SAY_TO_ALL) {
                 sendToAll(client);

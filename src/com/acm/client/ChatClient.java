@@ -12,9 +12,11 @@ import java.net.Socket;
  */
 public class ChatClient implements Runnable {
 
-    private static final int intoFail = 0;
-
-
+    private final static int INTO_FAIL = 0;//加入群聊失败
+    private final static int INTO_SUCCESS = 1;//加入群聊
+    private final static int EXIT = -1;//退出群聊
+    private final static int SAY_TO_ALL = 2;//对所有人说
+    private final static int SAY_TO_ONE = 3;//私聊
     private ClientUi clientUi = null;
     private Socket socket = null;
     private ObjectInputStream ois = null;
@@ -22,6 +24,10 @@ public class ChatClient implements Runnable {
     public ChatClient(ClientUi clientUi, Socket socket) {
         this.clientUi = clientUi;
         this.socket = socket;
+    }
+
+    public ChatClient() {
+
     }
 
 
@@ -66,7 +72,7 @@ public class ChatClient implements Runnable {
             init();
             Client client = getClient();
             System.out.println("ChatClient接收消息:"+client);
-            if(client.getInfo()!=intoFail){
+            if(client.getInfo()!=INTO_FAIL){
                 System.out.println("登录成功");
             }
         }
