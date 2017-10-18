@@ -1,4 +1,4 @@
-package com.acm.com.acm.util;
+package com.acm.util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

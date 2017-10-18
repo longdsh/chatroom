@@ -1,7 +1,7 @@
 package com.acm.server;
 
 import com.acm.bean.Client;
-import com.acm.com.acm.util.StreamUtil;
+import com.acm.util.StreamUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
