@@ -1,7 +1,6 @@
 package com.acm.server;
 
 import com.acm.bean.Client;
-import com.acm.util.StreamUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,13 +14,17 @@ import java.util.Map;
  */
 public class ChatServer implements Runnable {
 
+    /**
+     *  向同一个对象输入输出流不要重复初始化2次 如
+     *
+     *  ois  = getObjectInputStream(this.clientSocket);一次后
+     *  之后再 ois  = getObjectInputStream(this.clientSocket);会抛异常
+     *
+     */
     private final static int INTO = 1;//加入群聊
     private final static int EXIT = -1;//退出群聊
     private final static int SAY_TO_ALL = 2;//对所有人说
     private final static int SAY_TO_ONE = 3;//私聊
-
-
-    private StreamUtil streamUtil = new StreamUtil();
     private Socket clientSocket = null;
     private ObjectInputStream ois = null;
     private ObjectOutputStream oosToSelf = null;
@@ -41,7 +44,8 @@ public class ChatServer implements Runnable {
         for (Map.Entry<String, Socket> entry : clients.entrySet()) {
             if (entry.getKey() != client.getName()) {//消息不发给自己
                 //拿到socket
-                oosToOther = streamUtil.getObjectOutputStream(entry.getValue());
+                System.out.println("群发消息to："+entry.getKey());
+                oosToOther = getObjectOutputStream(entry.getValue());
                 try {
                     oosToOther.writeObject(client);
                 } catch (IOException e) {
@@ -61,13 +65,14 @@ public class ChatServer implements Runnable {
         String toName = (String) client.getMsg().get("toName");
 
         if (clients.containsKey(toName)) {
-            oosToOther = streamUtil.getObjectOutputStream(clients.get(toName));
+            oosToOther = getObjectOutputStream(clients.get(toName));
             try {
                 oosToOther.writeObject(client);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
+            oosToSelf = getObjectOutputStream(this.clientSocket);
             client.addMsg("message", "用户不存在");
             try {
                 oosToSelf.writeObject(client);
@@ -83,6 +88,7 @@ public class ChatServer implements Runnable {
      * @param client
      */
     public void sendInto(Client client) {
+        oosToSelf = getObjectOutputStream(this.clientSocket);
         // System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
         String name = client.getName();
         if (clients.containsKey(name)) {
@@ -94,7 +100,6 @@ public class ChatServer implements Runnable {
                 e.printStackTrace();
             }
         } else {
-            System.out.println(client.getName() + ":" + client.getMsg().get("message"));
             clients.put(client.getName(), this.clientSocket);//将客户socket放入map
             client.setInfo(1);
             client = client
@@ -129,7 +134,7 @@ public class ChatServer implements Runnable {
     public void run() {
         boolean flag = true;
         while (flag) {
-            init();//每次初始到输入输出流 否则抛出异常
+            ois  = getObjectInputStream(this.clientSocket);
             Client client = getClient();
             int info = client.getInfo();//判断为哪种消息
             if (info == INTO) {
@@ -148,6 +153,38 @@ public class ChatServer implements Runnable {
 
     }
 
+
+    /**
+     * 得到输出流
+     *
+     * @param socket
+     * @return
+     */
+    public ObjectOutputStream getObjectOutputStream(Socket socket) {
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return oos;
+    }
+
+    /**
+     * 得到输入流
+     *
+     * @param socket
+     * @return
+     */
+    public ObjectInputStream getObjectInputStream(Socket socket) {
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ois;
+    }
 
     /**
      * 通过输入流得到消息内容
@@ -169,16 +206,6 @@ public class ChatServer implements Runnable {
 
 
 
-
-
-
-    /**
-     * 初始化输入输出流
-     */
-    public void init() {
-        oosToSelf = streamUtil.getObjectOutputStream(this.clientSocket);
-        ois = streamUtil.getObjectInputStream(this.clientSocket);
-    }
 
     public ChatServer(Socket clientSocket) {
         this.clientSocket = clientSocket;

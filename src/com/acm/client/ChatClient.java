@@ -2,11 +2,9 @@ package com.acm.client;
 
 
 import com.acm.bean.Client;
-import com.acm.util.StreamUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -16,10 +14,9 @@ public class ChatClient implements Runnable {
 
     private static final int intoFail = 0;
 
-    private StreamUtil streamUtil = new StreamUtil();
+
     private ClientUi clientUi = null;
     private Socket socket = null;
-    private ObjectOutputStream oos = null;
     private ObjectInputStream ois = null;
 
     public ChatClient(ClientUi clientUi, Socket socket) {
@@ -27,9 +24,9 @@ public class ChatClient implements Runnable {
         this.socket = socket;
     }
 
+
     private void init() {
-        oos = streamUtil.getObjectOutputStream(socket);
-        ois = streamUtil.getObjectInputStream(socket);
+        ois = getObjectInputStream(socket);
     }
 
 
@@ -45,16 +42,33 @@ public class ChatClient implements Runnable {
         return client;
     }
 
+
+    /**
+     * 得到输入流
+     *
+     * @param socket
+     * @return
+     */
+    public ObjectInputStream getObjectInputStream(Socket socket) {
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ois;
+    }
+
     @Override
     public void run() {
         boolean flag = true;
         while (flag) {
             init();
             Client client = getClient();
+            System.out.println("ChatClient接收消息:"+client);
             if(client.getInfo()!=intoFail){
                 System.out.println("登录成功");
             }
-
         }
 
     }
