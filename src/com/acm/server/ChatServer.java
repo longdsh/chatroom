@@ -1,6 +1,7 @@
 package com.acm.server;
 
 import com.acm.bean.Client;
+import com.acm.com.acm.util.StreamUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -39,7 +40,7 @@ public class ChatServer implements Runnable {
         for (Map.Entry<String, Socket> entry : clients.entrySet()) {
             if (entry.getKey() != client.getName()) {//消息不发给自己
                 //拿到socket
-                oosToOther = getObjectOutputStream(entry.getValue());
+                oosToOther = StreamUtil.getObjectOutputStream(entry.getValue());
                 try {
                     oosToOther.writeObject(client);
                 } catch (IOException e) {
@@ -59,7 +60,7 @@ public class ChatServer implements Runnable {
         String toName = (String) client.getMsg().get("toName");
 
         if (clients.containsKey(toName)) {
-            oosToOther = getObjectOutputStream(clients.get(toName));
+            oosToOther = StreamUtil.getObjectOutputStream(clients.get(toName));
             try {
                 oosToOther.writeObject(client);
             } catch (IOException e) {
@@ -137,6 +138,7 @@ public class ChatServer implements Runnable {
             } else if (info == SAY_TO_ONE) {
                 sendToOne(client);
             } else if (info == EXIT) {
+                flag = false;
                 sendExit(client);
             }
 
@@ -163,46 +165,18 @@ public class ChatServer implements Runnable {
         return client;
     }
 
-    /**
-     * 得到输入流
-     *
-     * @param clientSocket
-     * @return
-     */
-    public ObjectInputStream getObjectInputStream(Socket clientSocket) {
-        // System.out.println(this.client);
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(clientSocket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ois;
-    }
 
-    /**
-     * 得到输出流
-     *
-     * @param clientSocket
-     * @return
-     */
-    public ObjectOutputStream getObjectOutputStream(Socket clientSocket) {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(clientSocket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return oos;
-    }
+
+
+
 
 
     /**
      * 初始化输入输出流
      */
     public void init() {
-        oosToSelf = getObjectOutputStream(this.clientSocket);
-        ois = getObjectInputStream(this.clientSocket);
+        oosToSelf = StreamUtil.getObjectOutputStream(this.clientSocket);
+        ois = StreamUtil.getObjectInputStream(this.clientSocket);
     }
 
     public ChatServer(Socket clientSocket) {
