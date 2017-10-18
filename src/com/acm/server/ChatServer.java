@@ -21,6 +21,7 @@ public class ChatServer implements Runnable {
     private final static int SAY_TO_ONE = 3;//私聊
 
 
+    private StreamUtil streamUtil = new StreamUtil();
     private Socket clientSocket = null;
     private ObjectInputStream ois = null;
     private ObjectOutputStream oosToSelf = null;
@@ -40,7 +41,7 @@ public class ChatServer implements Runnable {
         for (Map.Entry<String, Socket> entry : clients.entrySet()) {
             if (entry.getKey() != client.getName()) {//消息不发给自己
                 //拿到socket
-                oosToOther = StreamUtil.getObjectOutputStream(entry.getValue());
+                oosToOther = streamUtil.getObjectOutputStream(entry.getValue());
                 try {
                     oosToOther.writeObject(client);
                 } catch (IOException e) {
@@ -60,7 +61,7 @@ public class ChatServer implements Runnable {
         String toName = (String) client.getMsg().get("toName");
 
         if (clients.containsKey(toName)) {
-            oosToOther = StreamUtil.getObjectOutputStream(clients.get(toName));
+            oosToOther = streamUtil.getObjectOutputStream(clients.get(toName));
             try {
                 oosToOther.writeObject(client);
             } catch (IOException e) {
@@ -175,8 +176,8 @@ public class ChatServer implements Runnable {
      * 初始化输入输出流
      */
     public void init() {
-        oosToSelf = StreamUtil.getObjectOutputStream(this.clientSocket);
-        ois = StreamUtil.getObjectInputStream(this.clientSocket);
+        oosToSelf = streamUtil.getObjectOutputStream(this.clientSocket);
+        ois = streamUtil.getObjectInputStream(this.clientSocket);
     }
 
     public ChatServer(Socket clientSocket) {

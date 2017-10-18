@@ -16,7 +16,7 @@ public class StreamUtil {
      * @param socket
      * @return
      */
-    public static ObjectOutputStream getObjectOutputStream(Socket socket) {
+    public ObjectOutputStream getObjectOutputStream(Socket socket) {
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(socket.getOutputStream());
@@ -32,7 +32,7 @@ public class StreamUtil {
      * @param socket
      * @return
      */
-    public static ObjectInputStream getObjectInputStream(Socket socket) {
+    public ObjectInputStream getObjectInputStream(Socket socket) {
         // System.out.println(this.client);
         ObjectInputStream ois = null;
         try {

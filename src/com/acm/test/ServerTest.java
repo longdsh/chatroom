@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class ServerTest {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-
+       // StreamUtil streamUtil = new StreamUtil();
         Socket socket = new Socket("127.0.0.2",12345);
         while(true) {
             Scanner sc = new Scanner(System.in);
@@ -25,8 +25,8 @@ public class ServerTest {
             String name = sc.nextLine();
             System.out.println("输入message");
             String message = sc.nextLine();
-            ObjectInputStream ois = StreamUtil.getObjectInputStream(socket);
-            ObjectOutputStream oos =StreamUtil.getObjectOutputStream(socket);
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream oos =new ObjectOutputStream(socket.getOutputStream());
             Client client = new Client(name,info);
             client.addMsg("message",message);
 

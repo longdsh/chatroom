@@ -16,6 +16,7 @@ public class ChatClient implements Runnable {
 
     private static final int intoFail = 0;
 
+    private StreamUtil streamUtil = new StreamUtil();
     private ClientUi clientUi = null;
     private Socket socket = null;
     private ObjectOutputStream oos = null;
@@ -27,8 +28,8 @@ public class ChatClient implements Runnable {
     }
 
     private void init() {
-        oos = StreamUtil.getObjectOutputStream(socket);
-        ois = StreamUtil.getObjectInputStream(socket);
+        oos = streamUtil.getObjectOutputStream(socket);
+        ois = streamUtil.getObjectInputStream(socket);
     }
 
 
