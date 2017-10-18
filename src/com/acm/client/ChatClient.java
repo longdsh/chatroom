@@ -20,11 +20,12 @@ public class ChatClient {
             Client client = new Client();
             client.setInfo(1);
             client.setName(name);
+            client.getMsg().put("message","my name is "+name);
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             oos.writeObject(client);
-           /*ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+           ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             Client client1 = (Client) ois.readObject();
-           System.out.println(client1.getMessage());*/
+           System.out.println(client1.getMsg().get("message"));
         }
     }
 }

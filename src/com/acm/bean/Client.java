@@ -2,6 +2,7 @@ package com.acm.bean;
 
 import java.io.Serializable;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Map;
 public class Client implements Serializable{
     private String name;
     private Integer info;
-    private Map<String,Object> msg;
+    private Map<String,Object> msg = new HashMap<String,Object>();
 
     public Client() {
     }
@@ -33,6 +34,12 @@ public class Client implements Serializable{
         return this;
     }
 
+
+    public Client addMsg(String key,Object value){
+        msg.put(key,value);
+        return this;
+    }
+
     public Map<String, Object> getMsg() {
         return msg;
     }
@@ -42,10 +49,9 @@ public class Client implements Serializable{
         return this;
     }
 
-    public Client(String name, Integer info, Map<String, Object> msg) {
+    public Client(String name, Integer info) {
         this.name = name;
         this.info = info;
-        this.msg = msg;
     }
 
     @Override
