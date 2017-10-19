@@ -136,7 +136,7 @@ public class ClientUi extends JFrame{
         this.setBounds(10,10,1000,700);
         this.setVisible(true);
         this.clientUi = this;
-       // this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         bind();
     }
 
