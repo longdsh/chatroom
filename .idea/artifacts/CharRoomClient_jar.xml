@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="ChatRoomClient:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/ChatRoomClient_jar</output-path>
+  <artifact type="jar" name="CharRoomClient:jar">
+    <output-path>E:/资料/项目/ChatRoom</output-path>
     <root id="archive" name="chatroom.jar">
       <element id="directory" name="META-INF">
         <element id="file-copy" path="E:/资料/项目/ChatRoom/META-INF/MANIFEST.MF" />
