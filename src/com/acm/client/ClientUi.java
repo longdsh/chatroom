@@ -218,13 +218,15 @@ public class ClientUi extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 flag = false;
                 try {
+
                     ois = new ObjectOutputStream(socket.getOutputStream());
                     client.setInfo(EXIT);
+                    System.out.println("EXIT:"+client);
                     ois.writeObject(client);
                     //setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     System.exit(0);
                 } catch (IOException e1) {
-                    //e1.printStackTrace();
+                    e1.printStackTrace();
                 }
             }
         });

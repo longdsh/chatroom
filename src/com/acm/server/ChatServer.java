@@ -132,6 +132,7 @@ public class ChatServer implements Runnable {
     public void sendExit(Client client) {
         clients.remove(client.getName());
         client.addMsg("message", client.getName() + "退出聊天室");
+        client.setInfo(SAY_TO_ALL);
         sendToAll(client);
 
     }
