@@ -5,6 +5,7 @@ import com.acm.bean.Client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,17 +16,17 @@ import java.util.Map;
 public class ChatServer implements Runnable {
 
     /**
-     *  向同一个对象输入输出流不要重复初始化2次 如
-     *
-     *  ois  = getObjectInputStream(this.clientSocket);一次后
-     *  之后再 ois  = getObjectInputStream(this.clientSocket);会抛异常
-     *
+     * 向同一个对象输入输出流不要重复初始化2次 如
+     * <p>
+     * ois  = getObjectInputStream(this.clientSocket);一次后
+     * 之后再 ois  = getObjectInputStream(this.clientSocket);会抛异常
      */
     private final static int INTO_FAIL = 0;//加入群聊失败
     private final static int INTO_SUCCESS = 1;//加入群聊
     private final static int EXIT = -1;//退出群聊
     private final static int SAY_TO_ALL = 2;//对所有人说
     private final static int SAY_TO_ONE = 3;//私聊
+    private String name ;
     private Socket clientSocket = null;
     private ObjectInputStream ois = null;
     private ObjectOutputStream oosToSelf = null;
@@ -43,15 +44,17 @@ public class ChatServer implements Runnable {
      */
     public void sendToAll(Client client) {
         for (Map.Entry<String, Socket> entry : clients.entrySet()) {
-            if (entry.getKey() != client.getName()) {//消息不发给自己
+            if (!entry.getKey().equals(client.getName())) {//消息不发给自己
                 //拿到socket
-                System.out.println("群发消息to："+entry.getKey());
-                oosToOther = getObjectOutputStream(entry.getValue());
+                System.out.println("群发消息to：" + entry.getKey());
                 try {
+                    client.addMsg("online",clients.size());
+                    oosToOther = new ObjectOutputStream(entry.getValue().getOutputStream());
                     oosToOther.writeObject(client);
                 } catch (IOException e) {
+                    System.out.println("用户不正当退出");
                     clients.remove(entry.getKey());//用户不正当退出
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }
@@ -66,19 +69,20 @@ public class ChatServer implements Runnable {
         String toName = (String) client.getMsg().get("toName");
 
         if (clients.containsKey(toName)) {
-            oosToOther = getObjectOutputStream(clients.get(toName));
             try {
+                oosToOther = new ObjectOutputStream(clients.get(toName).getOutputStream());
                 oosToOther.writeObject(client);
             } catch (IOException e) {
-                e.printStackTrace();
+                clients.remove(toName);//用户不正当退出
+                //e.printStackTrace();
             }
         } else {
-            oosToSelf = getObjectOutputStream(this.clientSocket);
             client.addMsg("message", "用户不存在");
             try {
+                oosToSelf = new ObjectOutputStream(this.clientSocket.getOutputStream());
                 oosToSelf.writeObject(client);
             } catch (IOException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
         }
     }
@@ -89,16 +93,16 @@ public class ChatServer implements Runnable {
      * @param client
      */
     public void sendInto(Client client) {
-        oosToSelf = getObjectOutputStream(this.clientSocket);
         // System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
         String name = client.getName();
         if (clients.containsKey(name)) {
             client.setInfo(INTO_FAIL);
             client.addMsg("message", "用户已存在");
             try {
+                oosToSelf = new ObjectOutputStream(this.clientSocket.getOutputStream());
                 oosToSelf.writeObject(client);
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         } else {
             clients.put(client.getName(), this.clientSocket);//将客户socket放入map
@@ -107,10 +111,12 @@ public class ChatServer implements Runnable {
                     .addMsg("message", "登录成功")
                     .addMsg("online", clients.size());//在线人数
             try {
+                oosToSelf = new ObjectOutputStream(this.clientSocket.getOutputStream());
                 oosToSelf.writeObject(client);
             } catch (IOException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
+            client.setInfo(SAY_TO_ALL);
             client.addMsg("message", name + ",加入群聊");
             sendToAll(client);
         }
@@ -135,9 +141,15 @@ public class ChatServer implements Runnable {
     public void run() {
         boolean flag = true;
         while (flag) {
-            ois  = getObjectInputStream(this.clientSocket);
-            Client client = getClient();
-            int info = client.getInfo();//判断为哪种消息
+            Client client = null;
+            int info = 5;
+            try {
+                ois = new ObjectInputStream(this.clientSocket.getInputStream());
+                client = (Client) ois.readObject();
+                info = client.getInfo();//判断为哪种消息
+            } catch (Exception e) {
+                flag = false;
+            }
             if (info == INTO_SUCCESS) {
                 sendInto(client);
             } else if (info == SAY_TO_ALL) {
@@ -155,64 +167,25 @@ public class ChatServer implements Runnable {
     }
 
 
-    /**
-     * 得到输出流
-     *
-     * @param socket
-     * @return
-     */
-    public ObjectOutputStream getObjectOutputStream(Socket socket) {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return oos;
-    }
-
-    /**
-     * 得到输入流
-     *
-     * @param socket
-     * @return
-     */
-    public ObjectInputStream getObjectInputStream(Socket socket) {
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ois;
-    }
-
-    /**
-     * 通过输入流得到消息内容
-     *
-     * @return
-     */
-    public Client getClient() {
-        Client client = null;
-        try {
-            client = (Client) ois.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return client;
-    }
-
-
-
-
-
     public ChatServer(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
     public ChatServer() {
+    }
+
+    /**
+     * 算了 少个文件
+     * @param args
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(12345);
+        while (true){
+            Socket socket = serverSocket.accept();
+            //接收到请求开启线程
+            new Thread(new ChatServer(socket)).start();
+        }
     }
 
 }

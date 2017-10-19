@@ -31,50 +31,44 @@ public class ChatClient implements Runnable {
     }
 
 
-    private void init() {
-        ois = getObjectInputStream(socket);
-    }
-
-
-    private Client getClient() {
-        Client client = null;
-        try {
-            client = (Client) ois.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return client;
-    }
-
-
-    /**
-     * 得到输入流
-     *
-     * @param socket
-     * @return
-     */
-    public ObjectInputStream getObjectInputStream(Socket socket) {
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ois;
-    }
 
     @Override
     public void run() {
-        boolean flag = true;
-        while (flag) {
-            init();
-            Client client = getClient();
-            System.out.println("ChatClient接收消息:"+client);
-            if(client.getInfo()!=INTO_FAIL){
-                System.out.println("登录成功");
+        /**
+         * 接收消息
+         */
+        System.out.println("ClientUi:"+this.clientUi);
+        while (clientUi.getFlag()) {
+            Client client = null;
+            try {
+                ois = new ObjectInputStream(socket.getInputStream());
+                client = (Client) ois.readObject();
+            } catch (Exception e) {
+                clientUi.setFlag(false);
+                //e.printStackTrace();
             }
+            System.out.println("ClientUi:"+this.clientUi);
+            System.out.println("ChatClient接收消息:"+client);
+            /*if(client.getInfo()!=INTO_FAIL){
+                //System.out.println("登录成功");
+            }*/
+            if(client.getInfo()==INTO_FAIL){
+                clientUi.getShowInfo().append("用户已存在\n");
+            }else if(client.getInfo()==INTO_SUCCESS){
+                clientUi.getShowInfo().append("登录成功\n");
+                clientUi.getLineText().setText("在线人数："+client.getMsg().get("online").toString());
+                clientUi.getUserNameBtn().setEnabled(false);
+                clientUi.getSayToAllBtn().setEnabled(true);
+                clientUi.getSayToOneBtn().setEnabled(true);
+                clientUi.getExitBtn().setEnabled(true);
+            }else if(client.getInfo()==SAY_TO_ALL){
+                clientUi.getShowInfo().append((String) client.getMsg().get("message")+"\n");
+                clientUi.getLineText().setText( "在线人数："+client.getMsg().get("online").toString());
+            }else if(client.getInfo()==SAY_TO_ONE){
+                clientUi.getShowInfo().append((String) client.getMsg().get("message")+"\n");
+            }
+            //光标移到末行
+            clientUi.getShowInfo().setCaretPosition(clientUi.getShowInfo().getText().length());
         }
 
     }
