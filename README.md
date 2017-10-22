@@ -3,5 +3,4 @@
  
 开发环境 IDEA jdk1.8      
 
-![img]
-(https://github.com/longdsh/chatroom/tree/master/src/com/acm/demo.png)
+![img](https://github.com/longdsh/chatroom/tree/master/src/com/acm/demo.png)
