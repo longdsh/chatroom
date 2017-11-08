@@ -46,6 +46,7 @@ public class ChatServer implements Runnable {
      * @param client
      */
     public void sendToAll(Client client) {
+        //clients内存有在线用户名 遍历发送
         for (Map.Entry<String, Socket> entry : clients.entrySet()) {
             if (!entry.getKey().equals(client.getName())) {//消息不发给自己
                 //拿到socket
