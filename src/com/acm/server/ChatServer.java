@@ -28,9 +28,12 @@ public class ChatServer implements Runnable {
     private final static int SAY_TO_ONE = 3;//私聊
     private String name ;
     private Socket clientSocket = null;
+    //输入流
     private ObjectInputStream ois = null;
+    //输出流
     private ObjectOutputStream oosToSelf = null;
     private ObjectOutputStream oosToOther = null;
+    //存放所有在线人数 static及所有线程共用此资源
     private static Map<String, Socket> clients = null;
 
     static {
@@ -95,7 +98,7 @@ public class ChatServer implements Runnable {
     public void sendInto(Client client) {
         // System.out.println("this clientt:"+this.client+"client:"+client+"map:"+clients);
         String name = client.getName();
-        if (clients.containsKey(name)) {
+        if (clients.containsKey(name)) {//map中已存在该用户 返回已存在消息
             client.setInfo(INTO_FAIL);
             client.addMsg("message", "用户已存在");
             try {
@@ -105,6 +108,7 @@ public class ChatServer implements Runnable {
                 //e.printStackTrace();
             }
         } else {
+            //用户存入map中
             clients.put(client.getName(), this.clientSocket);//将客户socket放入map
             client.setInfo(INTO_SUCCESS);
             client = client
@@ -116,6 +120,7 @@ public class ChatServer implements Runnable {
             } catch (IOException e) {
                // e.printStackTrace();
             }
+            //通知所有人 此用户加入
             client.setInfo(SAY_TO_ALL);
             client.addMsg("message", name + ",加入群聊");
             sendToAll(client);
